@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+@if (ViewBag.SendEmailSuccess==true)
+{
+    <h2 class="display-1">Email have sended</h2>
+}
+
+<a class="btn btn-success" asp-action="SendEmail">Send Email</a>
