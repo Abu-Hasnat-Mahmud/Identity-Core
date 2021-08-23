@@ -7,5 +7,6 @@ namespace IdentityCore.Service
     {
         Task SendTestEmail(UserEmailOptions userEmailOptions);
         Task SendEmailConfirmation(UserEmailOptions userEmailOptions);
+        Task SendEmailForgotPassword(UserEmailOptions userEmailOptions);
     }
 }

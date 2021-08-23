@@ -11,5 +11,11 @@ namespace IdentityCore.Repository
         Task Signout();
         Task<IdentityResult> ChangePasswordAsync(ChangePasswordModel model);
         Task<IdentityResult> ConfirmEmail(string uId, string token);
+
+        Task GenerateEmailConfirmationTokenAsync(ApplicationUser user);
+        Task<ApplicationUser> GetUserByEmailAsync(string email);
+        Task GenerateEmailForgotPasswordTokenAsync(ApplicationUser user);
+
+        Task<IdentityResult> ResetPasswordAsync(ResetPasswordModel model);
     }
 }

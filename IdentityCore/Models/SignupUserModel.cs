@@ -20,20 +20,20 @@ namespace IdentityCore.Models
 
 
 
-        [DisplayName("User Email")]        
+        [DisplayName("User Email")]
         [DataType(DataType.EmailAddress)]
         [Required]
         public string Email { get; set; }
 
         [DisplayName("Password")]
         [DataType(DataType.Password)]
-        [Compare("ConfirmPassword", ErrorMessage ="Password not match")]
+        [Compare("ConfirmPassword", ErrorMessage = "Password not match")]
         [Required(ErrorMessage = "Enter your  password")]
         public string Password { get; set; }
 
         [DisplayName("Confirm Password")]
         [DataType(DataType.Password)]
-        [Required(ErrorMessage ="Enter confirm password")]
+        [Required(ErrorMessage = "Enter confirm password")]
         public string ConfirmPassword { get; set; }
     }
 
@@ -53,9 +53,11 @@ namespace IdentityCore.Models
 
     }
 
+
+
     public class ChangePasswordModel
     {
-        
+
 
         [DisplayName("Crrent Password")]
         [DataType(DataType.Password)]
@@ -70,11 +72,44 @@ namespace IdentityCore.Models
         [DisplayName("Confirm Pasword")]
         [DataType(DataType.Password)]
         [Required]
-        [Compare("NewPassword", ErrorMessage ="Password not match")]
+        [Compare("NewPassword", ErrorMessage = "Password not match")]
         public string ConfirmPassword { get; set; }
 
 
 
+
+    }
+
+    public class EmailConfrimModel
+    {
+        public string Email { get; set; }
+        //public bool IsConfirmed { get; set; }
+        public bool EmailSent { get; set; }
+        public bool EmailVerified { get; set; }
+    }
+
+    public class ForgotPasswordModel
+    {
+        [Required, EmailAddress, Display(Name = "Registered email address")]
+        public string Email { get; set; }
+        public bool EmailSent { get; set; }
+    }
+
+    public class ResetPasswordModel
+    {
+        [Required]
+        public string UserId { get; set; }
+
+        [Required]
+        public string Token { get; set; }
+
+        [Required, DataType(DataType.Password)]
+        public string NewPassword { get; set; }
+
+        [Required, DataType(DataType.Password)]
+        [Compare("NewPassword")]
+        public string ConfirmNewPassword { get; set; }
+        public bool IsSuccess { get; set; }
 
     }
 

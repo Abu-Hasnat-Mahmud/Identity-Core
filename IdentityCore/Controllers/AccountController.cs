@@ -1,5 +1,6 @@
 ﻿using IdentityCore.Models;
 using IdentityCore.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
@@ -28,19 +29,20 @@ namespace IdentityCore.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result =await _accountRepository.CreateUser(user);
+                var result = await _accountRepository.CreateUser(user);
 
                 if (!result.Succeeded)
                 {
                     foreach (var item in result.Errors)
                     {
-                        ModelState.AddModelError("",item.Description);
+                        ModelState.AddModelError("", item.Description);
                     }
                     return View();
                 }
                 ModelState.Clear();
+                return RedirectToAction("ConfirmEmail",new { email=user.Email });
             }
-            return View();
+            return View(user);
         }
 
 
@@ -54,7 +56,7 @@ namespace IdentityCore.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result =await _accountRepository.PasswordSignIn(user);
+                var result = await _accountRepository.PasswordSignIn(user);
 
                 if (result.Succeeded)
                 {
@@ -62,7 +64,7 @@ namespace IdentityCore.Controllers
                     {
                         return LocalRedirect(returnUrl);
                     }
-                    return RedirectToAction("Index","Home");
+                    return RedirectToAction("Index", "Home");
                 }
                 else if (result.IsNotAllowed)
                 {
@@ -72,7 +74,7 @@ namespace IdentityCore.Controllers
                 {
                     ModelState.AddModelError("", "Invalid Credential");
                 }
-               
+
             }
             return View();
         }
@@ -81,7 +83,7 @@ namespace IdentityCore.Controllers
         public async Task<IActionResult> Logout()
         {
             await _accountRepository.Signout();
-            return RedirectToAction("Index","Home");
+            return RedirectToAction("Index", "Home");
         }
 
         public IActionResult ChangePassword()
@@ -109,23 +111,110 @@ namespace IdentityCore.Controllers
                         ModelState.AddModelError("", item.Description);
                     }
                 }
-            }           
+            }
             return View(model);
         }
 
         [HttpGet("Confirm-email")]
-        public async Task<IActionResult> ConfirmEmail(string uId, string token)
+        public async Task<IActionResult> ConfirmEmail(string uId, string token, string email)
         {
+            EmailConfrimModel model = new EmailConfrimModel
+            {
+                Email = email
+            };
+
             if (!string.IsNullOrEmpty(uId) && !String.IsNullOrEmpty(token))
             {
                 token = token.Replace(" ", "+");
-                 var result=await _accountRepository.ConfirmEmail(uId, token);
+                var result = await _accountRepository.ConfirmEmail(uId, token);
                 if (result.Succeeded)
                 {
-                    ViewBag.IsSuccess = true;
+                   model.EmailVerified = true;
                 }
             }
+            return View(model);
+        }
+
+        [HttpPost("Confirm-email")]
+        public async Task<IActionResult> ConfirmEmail(EmailConfrimModel model)
+        {
+            var user = await _accountRepository.GetUserByEmailAsync(model.Email);
+            if (user != null)
+            {
+                if (user.EmailConfirmed)
+                {
+                    model.EmailVerified = true;
+                    return View(model);
+                }
+
+                await _accountRepository.GenerateEmailConfirmationTokenAsync(user);
+                model.EmailSent = true;
+                ModelState.Clear();
+            }
+            else
+            {
+                ModelState.AddModelError("", "Something went wrong");
+            }
+            return View(model);
+        }
+
+        [AllowAnonymous,HttpGet("fotgot-password")]
+        public IActionResult ForgotPassword()
+        {
             return View();
+        }
+
+        [AllowAnonymous,HttpPost("fotgot-password")]
+        public async Task<IActionResult> ForgotPasswordAsync(ForgotPasswordModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _accountRepository.GetUserByEmailAsync(model.Email);
+                if (user!=null)
+                {
+                     await _accountRepository.GenerateEmailForgotPasswordTokenAsync(user);
+                  
+                }
+                model.EmailSent = true;
+                ModelState.Clear();                
+            }
+            
+            return View(model);
+        }
+
+
+        [AllowAnonymous,HttpGet("reset-password")]
+        public IActionResult ResetPassword(string uId, string token)
+        {
+            ResetPasswordModel model = new ResetPasswordModel
+            {
+                UserId=uId,
+                Token=token
+            };
+            return View(model);
+        }
+
+        [AllowAnonymous,HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPasswordAsync(ResetPasswordModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                model.Token = model.Token.Replace(" ", "+");
+                var result = await _accountRepository.ResetPasswordAsync(model);
+                if (result.Succeeded)
+                {
+                    ModelState.Clear();
+                    model.IsSuccess = true;
+                    return View(model);
+                }
+
+                foreach (var item in result.Errors)
+                {
+                    ModelState.AddModelError("", item.Description);
+                }                         
+            }
+            
+            return View(model);
         }
 
     }

@@ -1,25 +1,38 @@
-﻿
-@{ 
+﻿@model EmailConfrimModel
+@{
     ViewBag.Title = "Confirm Email";
 }
 
 <div class="container">
     <div class="row text-center">
+        <div class="col-md-4"></div>
         <div class="col-md-4">
-            @if (ViewBag.IsSuccess == true)
+            @if (Model.EmailVerified)
             {
                 <div class="alert alert-success" role="alert">
                     <p>Your email verifyed successfully</p>
-
                 </div>
             }
             else
             {
-                <div class="alert alert-danger" role="alert">
-                    <p>Your token has expired</p>
-                </div>
+                @if (Model.EmailSent)
+                {
+                    <p>Email sent on your registered email id.</p>
+                }
+                else
+                {
+                    <p>We have sent email on your email id. Click on link to login</p>
+                }
+                <form asp-action="ConfirmEmail">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Email" />
+                    <p>Did not get any email of deleted by mistake?</p>
+                    <div class="form-group">
+                        <input type="submit" value="Resend confrimation email" class="btn btn-primary" />
+                    </div>
+                </form>
             }
-
         </div>
+        <div class="col-md-4"></div>
     </div>
 </div>

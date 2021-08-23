@@ -23,16 +23,24 @@ namespace IdentityCore.Service
 
         public async Task SendTestEmail(UserEmailOptions userEmailOptions)
         {
-            userEmailOptions.Subject =UpdatePlaceHolders("Hello {{username}}, This is test email from HIMU identity",userEmailOptions.PlaceHolders);
-            userEmailOptions.Body =UpdatePlaceHolders( GetEmailBody("TestEmail"),userEmailOptions.PlaceHolders);
+            userEmailOptions.Subject = UpdatePlaceHolders("Hello {{username}}, This is test email from HIMU identity", userEmailOptions.PlaceHolders);
+            userEmailOptions.Body = UpdatePlaceHolders(GetEmailBody("TestEmail"), userEmailOptions.PlaceHolders);
 
             await SendEmail(userEmailOptions);
         }
 
         public async Task SendEmailConfirmation(UserEmailOptions userEmailOptions)
         {
-            userEmailOptions.Subject =UpdatePlaceHolders("Hello {{username}}, Confirm your email id",userEmailOptions.PlaceHolders);
-            userEmailOptions.Body =UpdatePlaceHolders( GetEmailBody("EmailConfirmation"),userEmailOptions.PlaceHolders);
+            userEmailOptions.Subject = UpdatePlaceHolders("Hello {{username}}, Confirm your email id", userEmailOptions.PlaceHolders);
+            userEmailOptions.Body = UpdatePlaceHolders(GetEmailBody("EmailConfirmation"), userEmailOptions.PlaceHolders);
+
+            await SendEmail(userEmailOptions);
+        }
+
+        public async Task SendEmailForgotPassword(UserEmailOptions userEmailOptions)
+        {
+            userEmailOptions.Subject = UpdatePlaceHolders("Hello {{username}}, Confirm your email id", userEmailOptions.PlaceHolders);
+            userEmailOptions.Body = UpdatePlaceHolders(GetEmailBody("ForgotPassword"), userEmailOptions.PlaceHolders);
 
             await SendEmail(userEmailOptions);
         }
@@ -76,7 +84,7 @@ namespace IdentityCore.Service
 
         private string UpdatePlaceHolders(string text, List<KeyValuePair<string, string>> keyValuePairs)
         {
-            if (!String.IsNullOrEmpty(text) && keyValuePairs!=null)
+            if (!String.IsNullOrEmpty(text) && keyValuePairs != null)
             {
                 foreach (var item in keyValuePairs)
                 {
